@@ -34,6 +34,24 @@ function formatDate(value) {
 }
 
 /**
+ * Date for customers (BILL-482): 2026-03-09 -> "09.03.2026".
+ *
+ * formatDate() above stays MM/DD/YYYY on purpose — lib/export/accounting.js
+ * depends on exactly that for the nightly "Облік-Плюс" feed (see
+ * docs/impact.md). This one is for output a customer reads: the invoice
+ * page and the reminder emails.
+ *
+ * @param {string|Date} value  YYYY-MM-DD string or a Date
+ * @returns {string} дд.мм.рррр
+ */
+function formatDateUA(value) {
+  if (!value) return '';
+  var d = toDate(value);
+  if (isNaN(d.getTime())) return '';
+  return pad(d.getUTCDate()) + '.' + pad(d.getUTCMonth() + 1) + '.' + d.getUTCFullYear();
+}
+
+/**
  * Money for people: 123450 -> "1 234,50 грн".
  * Amounts are integer kopecks everywhere (never floats!).
  */
@@ -75,6 +93,7 @@ function formatPercent(value) {
 
 module.exports = {
   formatDate: formatDate,
+  formatDateUA: formatDateUA,
   formatMoney: formatMoney,
   formatDecimal: formatDecimal,
   formatText: formatText,
