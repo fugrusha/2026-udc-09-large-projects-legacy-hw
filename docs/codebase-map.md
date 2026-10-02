@@ -81,9 +81,14 @@ price_history, stock) + один приклад виписки в `data/statemen
 **цілим файлом** через `save()` — немає ні БД, ні транзакцій.
 
 - **Дати:** зберігаються як рядки `YYYY-MM-DD` (ISO), жодних `Date`-об'єктів
-  у файлах. Форматування "для людей" — `lib/format.js:formatDate()`, яка
-  **попри власний docstring "returns ... ISO format" фактично повертає
-  `MM/DD/YYYY`** (`lib/format.js:29-34`) — це і є предмет BILL-482.
+  у файлах. `lib/format.js:formatDate()` **попри власний docstring "returns
+  ... ISO format" фактично повертає `MM/DD/YYYY`** (`lib/format.js:29-34`) —
+  це був предмет BILL-482. **Після реалізації тікета** (Task C):
+  `formatDate()` лишили як є (`MM/DD/YYYY`) — його й далі використовує
+  `lib/export/accounting.js` для нічного фіда «Облік-Плюс»; для людей
+  (HTML-рахунок, лист-нагадування) додано нову `lib/format.js:formatDateUA()`
+  (`дд.мм.рррр`), на яку перевели `lib/invoices/render.js` і
+  `lib/notifications/reminders.js`.
 - **Гроші:** цілі копійки (ніколи float) всюди в даних і розрахунках;
   `formatMoney()` — для людей ("1 234,50 грн"), `formatDecimal()` — для
   машин ("1234.50").
@@ -104,8 +109,8 @@ price_history, stock) + один приклад виписки в `data/statemen
   **не знаходиться текстовим пошуком `formatDate(`**, бо виклик динамічний.
 - **Старий SMTP-релей.** `bin/send-reminders.js` лише пише `.txt`-файли в
   `out/mail`; релей забирає їх сам. Текст нагадувань використовує
-  `formatDate()` для дати оплати — читає людина (клієнт/бухгалтерія), не
-  система.
+  `formatDateUA()` (після Task C; до BILL-482 було `formatDate()`) для
+  дати оплати — читає людина (клієнт), не система.
 - **Банк (вхідний зв'язок).** `bin/import-statement.js` / `POST
   /api/payments/import` парсять фіксований формат KB-2
   (`lib/payments/statement.js`) — дати тут `DDMMYYYY`, парсяться окремим
